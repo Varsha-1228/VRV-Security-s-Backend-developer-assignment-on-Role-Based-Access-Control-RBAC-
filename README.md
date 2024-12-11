@@ -1,55 +1,64 @@
-# VRV-Security-s-Backend-developer-assignment-on-Role-Based-Access-Control-RBAC-
-This repository contains the implementation of Role-Based Access Control (RBAC) as part of VRV Security's Backend Developer Intern Assignment. The project demonstrates a secure and scalable backend system to manage user roles and permissions efficiently, ensuring controlled access to resources based on roles.
+# React RBAC tutorial
 
-# Features Implemented
-User Authentication:
-Secure login and registration functionality using JWT (JSON Web Tokens) for session management.
-Passwords are encrypted using hashing algorithms (e.g., bcrypt) to ensure data security.
+Full tutorial originally appeared and is available on Auth0's blog: [How to Add Role-Based Access Control (RBAC) to React Apps](https://auth0.com/blog/role-based-access-control-rbac-and-react-apps/)
 
-# Role-Based Access Control (RBAC):
-Users are assigned specific roles (e.g., Admin, Editor, Viewer).
-Permissions are granted based on roles to ensure controlled access to APIs and resources.
+## Requirements
+* Node + npm
+* [Auth0 account](https://auth0.com/) with [application](https://manage.auth0.com/#/applications)
 
-# API Design:
-RESTful APIs for creating, updating, deleting, and fetching users, roles, and permissions.
-Endpoints are protected based on roles and permissions, ensuring secure access.
+## Install
 
-# Data Validation and Security:
-Integrated input validation to prevent invalid data entry.
-Implemented protection against vulnerabilities like SQL injection and cross-site scripting (XSS).
+Clone this repository, then run:
 
-# Error Handling:
-Comprehensive error handling with meaningful error messages to enhance debugging and usability.
+```
+$ npm install
+```
 
-# Scalability and Optimization:
-Modular code structure for scalability and maintainability.
-Optimized database queries using indexing and normalization techniques.
+## Setup
 
-# Tech Stack
-Backend Framework: [e.g., Node.js with Express.js, or Python with Flask/Django]
-Database: [e.g., MongoDB, MySQL, or PostgreSQL]
-Authentication: JSON Web Tokens (JWT)
-Tools: Postman for API testing, Git for version control
+### Sign Up for Auth0
 
-# How to Run the Project
-Clone the repository:
-git clone https://github.com/your-username/rbac-assignment.git
+You'll need an [Auth0](https://auth0.com) account to manage authentication. You can [sign up for a free Auth0 account here](https://auth0.com/signup).
 
-Navigate to the project directory:
-cd rbac-assignment
+Next, set up an Auth0 Application so Auth0 can interface with the React app.
 
-Install dependencies:
-npm install  # For Node.js
+### Set Up an Auth0 Application
 
-Configure environment variables:
-Set up .env file for database credentials and JWT secret keys.
+1. Go to your [**Auth0 Dashboard**](https://manage.auth0.com/#/) and click the "[Create a New Application](https://manage.auth0.com/#/applications/create)" button.
+2. Name your new app (something like `React RBAC`) and select "Single Page Web Applications".
+3. In the **Settings** for your new Auth0 application app, add `http://localhost:3000/callback` to the **Allowed Callback URLs**.
+5. At the bottom of the **Settings** section, click "Show Advanced Settings". Choose the **OAuth** tab and verify that the **JsonWebToken Signature Algorithm** is set to "RS256".
 
-Run the application:
-npm start  # Start the server
-Test APIs using Postman or a similar tool.
+### Provide Credentials to React App
 
-# API Documentation
-Detailed documentation of API endpoints, request formats, and responses is provided in the repository (e.g., API_DOCS.md).
+1. Rename `auth0-variables.js.example` inside `src/constants/` to `auth0-variables.js`.
+1. Paste the auth0 credentials in `auth0-variables.js`.
 
-# Conclusion
-This project highlights a robust implementation of RBAC for managing user roles and permissions in a secure and scalable backend system. It is designed to showcase best practices in backend development, security, and API design.
+## Development server
+
+```
+$ npm start
+```
+
+## Auth0 Rule to Set Roles to a User
+
+```js
+function (user, context, callback) {
+  user.app_metadata = user.app_metadata || {};
+
+  if (user.email === 'bruno.krebs@auth0.com') {
+    user.app_metadata.role = 'admin';
+  } else {
+    user.app_metadata.role = 'writer';
+  }
+
+  auth0.users.updateAppMetadata(user.user_id, user.app_metadata)
+    .then(() => {
+      context.idToken['https://itaditya/role'] = user.app_metadata.role;
+      callback(null, user, context);
+    })
+    .catch((err) => {
+      callback(err);
+    });
+}
+```
